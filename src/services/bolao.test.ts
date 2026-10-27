@@ -1,6 +1,13 @@
 import assert from "node:assert/strict";
 import { handlePrefixBolao } from "../discord/events/prefix.js";
 import { removeBolaoBet, purgeTestBolaoBets } from "../database/index.js";
+import { CONFIG } from "../config.js";
+
+// O bolão exige persistência; sem Mongo o teste é pulado (CI sobe Mongo como serviço).
+if (!CONFIG.MONGO_URI) {
+  console.log("bolão: skip — requer MONGO_URI");
+  process.exit(0);
+}
 
 const replies: string[] = [];
 const message: any = {

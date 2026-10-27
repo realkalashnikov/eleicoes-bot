@@ -22,8 +22,8 @@ export const createLivePanelDeps = (): LivePanelDeps => ({
   updateSettings: updateGuildSettings,
 });
 
-export async function startLiveElectionPanel(client: Client, deps: LivePanelDeps = createLivePanelDeps()): Promise<void> {
-  await syncApplicationEmojis(client);
+/** Uma volta de sincronização: publica na primeira, edita no lugar nas seguintes. */
+export async function runPanelSync(client: Client, deps: LivePanelDeps): Promise<void> {
   const syncGuild = async (guildId: string) => {
     const settings = await deps.getSettings(guildId);
     const channelId = settings.channels?.election;
@@ -52,12 +52,13 @@ export async function startLiveElectionPanel(client: Client, deps: LivePanelDeps
     }
   };
 
-  const sync = async () => {
-    for (const guild of client.guilds.cache.values()) {
-      await syncGuild(guild.id).catch(error => console.error(`[Painel] ${guild.id}:`, error));
-    }
-  };
+  for (const guild of client.guilds.cache.values()) {
+    await syncGuild(guild.id).catch(error => console.error(`[Painel] ${guild.id}:`, error));
+  }
+}
 
-  await sync();
-  setInterval(sync, deps.intervalMs ?? CONFIG.PANEL_REFRESH_MS);
+export async function startLiveElectionPanel(client: Client, deps: LivePanelDeps = createLivePanelDeps()): Promise<void> {
+  await syncApplicationEmojis(client);
+  await runPanelSync(client, deps);
+  setInterval(() => runPanelSync(client, deps).catch(error => console.error("[Painel]", error)), deps.intervalMs ?? CONFIG.PANEL_REFRESH_MS);
 }
