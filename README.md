@@ -1,6 +1,7 @@
 # 🇧🇷 Eleições Bot — Observatório Eleitoral para Discord
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)
+![CI](https://github.com/realkalashnikov/eleicoes-bot/actions/workflows/ci.yml/badge.svg)
 ![Bun](https://img.shields.io/badge/Bun-1.4-F9F1DC?logo=bun&logoColor=black)
 ![discord.js](https://img.shields.io/badge/discord.js-14.x%20V2-5865F2?logo=discord&logoColor=white)
 ![MongoDB](https://img.shields.io/badge/MongoDB-opcional-47A248?logo=mongodb&logoColor=white)
