@@ -7,17 +7,32 @@ import { getElectionPanel, toStaticPanel } from "./electionView.js";
 // Guilds que já tiveram o painel republicado nesta sessão; as próximas voltas só editam no lugar.
 const republished = new Set<string>();
 
-export async function startLiveElectionPanel(client: Client): Promise<void> {
+/** Pontos de I/O do ciclo do painel — injetáveis pra testes herméticos. */
+export interface LivePanelDeps {
+  buildPanel: () => Promise<unknown>;
+  getSettings: (guildId: string) => Promise<any>;
+  updateSettings: (guildId: string, update: Record<string, unknown>) => Promise<unknown>;
+  intervalMs?: number;
+}
+
+export const createLivePanelDeps = (): LivePanelDeps => ({
+  buildPanel: async () =>
+    toStaticPanel(await getElectionPanel("br", "1", CONFIG.FED_ELECTION), Date.now() + CONFIG.PANEL_REFRESH_MS),
+  getSettings: getGuildSettings,
+  updateSettings: updateGuildSettings,
+});
+
+export async function startLiveElectionPanel(client: Client, deps: LivePanelDeps = createLivePanelDeps()): Promise<void> {
   await syncApplicationEmojis(client);
   const syncGuild = async (guildId: string) => {
-    const settings = await getGuildSettings(guildId);
+    const settings = await deps.getSettings(guildId);
     const channelId = settings.channels?.election;
     if (!channelId) return;
     const guild = await client.guilds.fetch(guildId).catch(() => null);
     const channel = await guild?.channels.fetch(channelId).catch(() => null);
     if (!channel || !(channel instanceof TextChannel)) return;
 
-    const panel = toStaticPanel(await getElectionPanel("br", "1", CONFIG.FED_ELECTION), Date.now() + CONFIG.PANEL_REFRESH_MS);
+    const panel = await deps.buildPanel();
     const prior = settings.panelMessages?.election
       ? await channel.messages.fetch(settings.panelMessages.election).catch(() => null)
       : null;
@@ -33,7 +48,7 @@ export async function startLiveElectionPanel(client: Client): Promise<void> {
     }
     republished.add(guildId);
     if (!settings.panelMessages?.election || settings.panelMessages.election !== liveMessage.id) {
-      await updateGuildSettings(guildId, { "panelMessages.election": liveMessage.id }).catch(() => null);
+      await deps.updateSettings(guildId, { "panelMessages.election": liveMessage.id }).catch(() => null);
     }
   };
 
@@ -44,5 +59,5 @@ export async function startLiveElectionPanel(client: Client): Promise<void> {
   };
 
   await sync();
-  setInterval(sync, CONFIG.PANEL_REFRESH_MS);
+  setInterval(sync, deps.intervalMs ?? CONFIG.PANEL_REFRESH_MS);
 }

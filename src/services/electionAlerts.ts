@@ -9,30 +9,49 @@ import { detectElectionAlerts, type ElectionAlert } from "../domain/alerts.js";
 export { detectElectionAlerts };
 export type { ElectionAlert };
 
+/** Pontos de I/O do ciclo de alertas — injetáveis pra testes herméticos. */
+export interface AlertDeps {
+  fetch: (uf: string, cargo: string, election: string) => Promise<ElectionSummary | null>;
+  guilds: () => Promise<any[]>;
+  bets: () => Promise<any[]>;
+  isSettled: (key: string) => Promise<boolean>;
+  markSettled: (key: string) => Promise<void>;
+  subscribers: (scope: string) => Promise<string[]>;
+}
+
+export const createAlertDeps = (): AlertDeps => ({
+  fetch: (uf, cargo, election) => fetchElectionResults(uf, cargo, election).catch(() => null),
+  guilds: listGuildSettings,
+  bets: () => listBolaoBets(),
+  isSettled: isBolaoSettled,
+  markSettled: markBolaoSettled,
+  subscribers: listAlertSubscribers,
+});
+
 // ponytail: estado em memória; após reinício só alerta mudanças novas. Persistir em Mongo se precisar sobreviver a restart.
 const WATCHED = [
   { uf: "br", cargo: "1", election: CONFIG.FED_ELECTION },
   ...CONFIG.UFS.filter(item => item.cargo === "3").map(item => ({ uf: item.uf as string, cargo: "3", election: CONFIG.STATE_ELECTION })),
 ];
 
-export async function startElectionAlerts(client: Client): Promise<void> {
+export async function startElectionAlerts(client: Client, deps: AlertDeps = createAlertDeps()): Promise<void> {
   const last = new Map<string, ElectionSummary>();
   const check = async () => {
     const alerts: ElectionAlert[] = [];
     for (const target of WATCHED) {
       const key = `${target.uf}:${target.cargo}:${target.election}`;
-      const next = await fetchElectionResults(target.uf, target.cargo, target.election).catch(() => null);
+      const next = await deps.fetch(target.uf, target.cargo, target.election);
       if (!next || next.stale) continue;
       const prev = last.get(key);
       if (prev) alerts.push(...detectElectionAlerts(prev, next));
       last.set(key, next);
     }
     const presidentSummary = last.get(`br:1:${CONFIG.FED_ELECTION}`);
-    if (presidentSummary?.isComplete && !(await isBolaoSettled("presidente-2"))) {
-      const bets = await listBolaoBets();
+    if (presidentSummary?.isComplete && !(await deps.isSettled("presidente-2"))) {
+      const bets = await deps.bets();
       if (bets.length) {
         const overall = scoreBets(bets, bolaoActuals(presidentSummary));
-        for (const settings of await listGuildSettings()) {
+        for (const settings of await deps.guilds()) {
           const channel = settings.channels?.election ? await client.channels.fetch(settings.channels.election).catch(() => null) : null;
           if (!(channel instanceof TextChannel)) continue;
           const local = bets.filter(bet => bet.guildId === settings.guildId);
@@ -44,18 +63,18 @@ export async function startElectionAlerts(client: Client): Promise<void> {
           await user?.send({ content: `**Seu resultado no bolão:** ${index + 1}º lugar com ${entry.score} pts (${entry.candidateName} ${entry.betPercent.toFixed(1).replace(".", ",")}% • real ${entry.actualPercent.toFixed(1).replace(".", ",")}%).` }).catch(() => failures.push(`dm:${entry.userId}`));
         }
       }
-      await markBolaoSettled("presidente-2");
+      await deps.markSettled("presidente-2");
     }
     if (!alerts.length) return;
     const failures: string[] = [];
-    for (const settings of await listGuildSettings()) {
+    for (const settings of await deps.guilds()) {
       const channelId = settings.channels?.election;
       const channel = channelId ? await client.channels.fetch(channelId).catch(() => null) : null;
       if (!(channel instanceof TextChannel)) continue;
       for (const alert of alerts) await channel.send({ content: alert.content }).catch(() => failures.push(channel.id));
     }
     for (const alert of alerts) {
-      for (const userId of await listAlertSubscribers(alert.uf)) {
+      for (const userId of await deps.subscribers(alert.uf)) {
         const user = await client.users.fetch(userId).catch(() => null);
         await user?.send({ content: alert.content }).catch(() => failures.push(`dm:${userId}`));
       }
