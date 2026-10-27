@@ -16,7 +16,7 @@
     "watch": "bun --watch src/index.ts",
     "start": "bun src/index.ts",
     "check": "tsc --noEmit",
-    "test": "bun src/services/electionView.test.ts && bun src/services/progressbar.test.ts && bun src/menus/electionPanel.test.ts && bun src/services/electionAlerts.test.ts && bun src/responders/interactions.test.ts && bun src/responders/insights.test.ts && bun src/responders/status.test.ts && bun src/services/bolao.test.ts",
+    "test": "bun src/domain/domain.test.ts && bun src/services/electionView.test.ts && bun src/services/progressbar.test.ts && bun src/menus/electionPanel.test.ts && bun src/services/electionAlerts.test.ts && bun src/responders/interactions.test.ts && bun src/responders/insights.test.ts && bun src/responders/status.test.ts && bun src/services/bolao.test.ts",
     "import:tse": "bun scripts/import-tse.ts",
     "worker:tse": "bun scripts/tse-worker.ts",
     "worker:candidates": "bun scripts/candidates-worker.ts",

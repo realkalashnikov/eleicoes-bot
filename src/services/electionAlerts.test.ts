@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { detectElectionAlerts } from "./electionAlerts.js";
+import { detectElectionAlerts } from "../domain/alerts.js";
 
 const cand = (number: string, name: string, pct: number, elected = false): any =>
   ({ number, ballotName: name, party: "X", percentageStr: String(pct).replace(".", ","), isElected: elected });

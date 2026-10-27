@@ -3,34 +3,11 @@ import { CONFIG } from "../config.js";
 import { listAlertSubscribers, listBolaoBets, listGuildSettings, isBolaoSettled, markBolaoSettled } from "../database/index.js";
 import { fetchElectionResults, type ElectionSummary } from "./tse.js";
 import { bolaoActuals, bolaoResultPanel, scoreBets } from "./bolao.js";
+import { detectElectionAlerts, type ElectionAlert } from "../domain/alerts.js";
 
-const MILESTONES = [10, 25, 50, 75, 90, 95, 99];
-const percent = (value: string) => Number(value.replace(",", ".")) || 0;
-const leaderLine = (summary: ElectionSummary) =>
-  summary.candidates.slice(0, 2).map(c => `**${c.ballotName}** ${c.percentageStr}%`).join(" • ");
-const scopeLabel = (summary: ElectionSummary) =>
-  `${summary.cargoName}${summary.cargoName !== "Presidente" ? ` • ${summary.uf}` : ""} • ${summary.round}º turno`;
-
-export interface ElectionAlert { uf: string; content: string }
-
-export function detectElectionAlerts(prev: ElectionSummary, next: ElectionSummary): ElectionAlert[] {
-  const alerts: ElectionAlert[] = [];
-  const uf = next.cargoName === "Presidente" ? "br" : next.uf.toLowerCase();
-  const push = (content: string) => alerts.push({ uf, content });
-  if (prev.totalVotes === 0 && next.totalVotes > 0) push(`🗳️ **Apuração começou** — ${scopeLabel(next)}\n${leaderLine(next)}`);
-  const crossed = MILESTONES.filter(m => percent(prev.totalizedPercent) < m && percent(next.totalizedPercent) >= m).pop();
-  if (crossed && !next.isComplete) push(`📊 **${crossed}% das urnas apuradas** — ${scopeLabel(next)}\n${leaderLine(next)}`);
-  const prevLeader = prev.candidates[0]?.number;
-  if (prev.totalVotes > 0 && prevLeader && next.candidates[0]?.number && next.candidates[0].number !== prevLeader && !next.isComplete) {
-    push(`🔄 **Virada na liderança** — ${scopeLabel(next)} (${next.totalizedPercent}% apurado)\n${leaderLine(next)}`);
-  }
-  const alreadyElected = new Set(prev.candidates.filter(c => c.isElected).map(c => c.number));
-  for (const candidate of next.candidates.filter(c => c.isElected && !alreadyElected.has(c.number))) {
-    push(`👑 **${candidate.ballotName} (${candidate.party}) ELEITO** — ${scopeLabel(next)}\n${candidate.percentageStr}% dos votos válidos • fonte: TSE`);
-  }
-  if (!prev.isComplete && next.isComplete) push(`✅ **Totalização concluída** — ${scopeLabel(next)}\n${leaderLine(next)}`);
-  return alerts;
-}
+// Regra pura vive em src/domain/alerts.ts; aqui ficam os ciclos de rede e entrega.
+export { detectElectionAlerts };
+export type { ElectionAlert };
 
 // ponytail: estado em memória; após reinício só alerta mudanças novas. Persistir em Mongo se precisar sobreviver a restart.
 const WATCHED = [
