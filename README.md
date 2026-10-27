@@ -62,21 +62,22 @@ Bot de Discord que acompanhou **ao vivo** a apuração das eleições gerais de 
 
 ```
 src/
-├── index.ts              # bootstrap do cliente
-├── config.ts             # env tipada + constantes do ciclo eleitoral (turnos, UFs, cores)
+├── index.ts              # bootstrap: env validada no boot, depois o cliente
+├── config.ts             # env validada por schema (zod) + constantes do ciclo eleitoral
+├── domain/               # regra pura (bolão, alertas) — sem Mongo/TSE/Discord, testada isoladamente
 ├── discord/
 │   ├── commands/         # 12 comandos (slash + prefixo compartilham a mesma camada de serviço)
 │   └── events/           # ready, interações e parser de mensagens de prefixo
-├── services/             # regra de negócio: cliente TSE, bolão, alertas, insights, RSS, workers
+├── services/             # casos de uso com I/O: TSE, ciclos de alertas/painel (deps injetáveis), RSS, workers
 ├── menus/                # painéis Components V2, paginação e feedback
-├── responders/           # roteador de interações (botões, menus, modais)
-├── database/             # schemas Mongoose + acesso a dados
+├── responders/           # roteador de interações (registro de rotas por customId)
+├── database/             # conexão/models Mongoose + repos por domínio (settings, bolão, alertas, snapshots, observatório)
 └── functions/utils/      # ícones de aplicação, logs silenciosos
 ```
 
 - **Fonte única de verdade:** `services/electionView.ts` constrói o painel a partir do JSON oficial do TSE; a versão estática (`toStaticPanel`) deriva do mesmo payload, sem duplicação.
 - **Interações à prova de acidente:** qualquer erro de interação responde como aviso ephemeral e nunca altera o painel público.
-- **Testes** (`*.test.ts`) rodam com `bun test` contra Mongo real e a API do TSE.
+- **Testes em dois níveis:** herméticos (domínio, schema de env, ciclos com deps falsas) rodam sem Mongo nem TSE; testes de integração usam Mongo real (a CI sobe como serviço) e pulam quando `MONGO_URI` está ausente.
 
 ---
 
@@ -121,6 +122,7 @@ bun run worker:news         # ingestão de RSS
 
 ## 📚 Documentação
 
+- [ARCHITECTURE.md](docs/ARCHITECTURE.md) — camadas, ciclos de runtime e estratégia de testes.
 - [METHODOLOGY.md](METHODOLOGY.md) — metodologia de coleta e análise.
 - [SOURCES.md](SOURCES.md) — fontes de dados e notícias.
 - [SECURITY.md](SECURITY.md) — política de segurança.
