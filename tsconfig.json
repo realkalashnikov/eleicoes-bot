@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "#config": ["./src/config.ts"],
+      "#base": ["./src/discord/index.ts"],
+      "#database": ["./src/database/index.ts"],
+      "#menus": ["./src/menus/index.ts"],
+      "#services": ["./src/services/index.ts"],
+      "#functions": ["./src/functions/index.ts"],
+      "#emojis": ["./emojis.json", "./emojis.dev.json"],
+    }
+  },
+  "include": ["src/**/*", "scripts/**/*"]
+}

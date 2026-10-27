@@ -1,0 +1,24 @@
+# Dependencies and builds
+node_modules/
+build/
+dist/
+coverage/
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+
+# Downloaded TSE archives and extracted datasets
+data/
+
+# Runtime files
+*.log
+logs/
+*.pid
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

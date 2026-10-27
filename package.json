@@ -1,0 +1,35 @@
+{
+  "name": "eleicoes-bot",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "imports": {
+    "#config": "./src/config.ts",
+    "#base": "./src/discord/index.ts",
+    "#database": "./src/database/index.ts",
+    "#menus": "./src/menus/index.ts",
+    "#services": "./src/services/index.ts",
+    "#functions": "./src/functions/index.ts"
+  },
+  "scripts": {
+    "dev": "bun src/index.ts",
+    "watch": "bun --watch src/index.ts",
+    "start": "bun src/index.ts",
+    "check": "tsc --noEmit",
+    "test": "bun src/services/electionView.test.ts && bun src/services/progressbar.test.ts && bun src/menus/electionPanel.test.ts && bun src/services/electionAlerts.test.ts && bun src/responders/interactions.test.ts && bun src/responders/insights.test.ts && bun src/responders/status.test.ts && bun src/services/bolao.test.ts",
+    "import:tse": "bun scripts/import-tse.ts",
+    "worker:tse": "bun scripts/tse-worker.ts",
+    "worker:candidates": "bun scripts/candidates-worker.ts",
+    "worker:news": "bun scripts/news-worker.ts"
+  },
+  "dependencies": {
+    "@constatic/base": "^0.1.1",
+    "@magicyan/discord": "^1.7.4",
+    "discord.js": "^14.26.4",
+    "mongoose": "^9.11.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "typescript": "^5.7.2"
+  }
+}

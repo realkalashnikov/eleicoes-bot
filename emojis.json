@@ -1,0 +1,29 @@
+{
+  "static": {
+    "ballot_box": "https://cdn.discordapp.com/emojis/1556422018633834548.png",
+    "brazil_flag": "https://cdn.discordapp.com/emojis/1556422020235923577.png",
+    "chart_bar": "https://cdn.discordapp.com/emojis/1556422021406134333.png",
+    "check": "https://cdn.discordapp.com/emojis/1556422022865887233.png",
+    "crown": "https://cdn.discordapp.com/emojis/1556422024006733824.png",
+    "rank_1st": "https://cdn.discordapp.com/emojis/1556422025055309834.png",
+    "rank_2nd": "https://cdn.discordapp.com/emojis/1556422026489499729.png",
+    "rank_3rd": "https://cdn.discordapp.com/emojis/1556422027626418317.png",
+    "refresh": "https://cdn.discordapp.com/emojis/1556422028435914753.png",
+    "trophy": "https://cdn.discordapp.com/emojis/1556422029618581597.png",
+    "building": "https://cdn.discordapp.com/emojis/1563954403185004767.png",
+    "globe": "https://cdn.discordapp.com/emojis/1563954404242104445.png",
+    "send": "https://cdn.discordapp.com/emojis/1563954405425029130.png",
+    "settings": "https://cdn.discordapp.com/emojis/1563954406528000011.png",
+    "progress_end_empty": "https://cdn.discordapp.com/emojis/1563956018239512798.png",
+    "progress_end_full": "https://cdn.discordapp.com/emojis/1563956019434885193.png",
+    "progress_mid_empty": "https://cdn.discordapp.com/emojis/1563956021272248451.png",
+    "progress_mid_full": "https://cdn.discordapp.com/emojis/1563956022303793162.png",
+    "progress_start_empty": "https://cdn.discordapp.com/emojis/1563956023482646569.png",
+    "progress_start_full": "https://cdn.discordapp.com/emojis/1563956024598208692.png",
+    "angle_left": "https://cdn.discordapp.com/emojis/1563990359875387433.png",
+    "angle_right": "https://cdn.discordapp.com/emojis/1563990360844271700.png",
+    "angles_left": "https://cdn.discordapp.com/emojis/1563990362165616785.png",
+    "angles_right": "https://cdn.discordapp.com/emojis/1563990363570577590.png"
+  },
+  "animated": {}
+}
