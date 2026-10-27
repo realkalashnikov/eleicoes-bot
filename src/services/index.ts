@@ -6,6 +6,7 @@ export * from "./campaignFinance.js";
 export * from "./livePanel.js";
 export * from "./newsFeeds.js";
 export * from "./observatory.js";
+export * from "./publishing.js";
 export * from "./sourceScheduler.js";
 export * from "./tse.js";
 export * from "./tseCatalog.js";

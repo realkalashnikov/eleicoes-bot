@@ -8,7 +8,8 @@ import { campaignCategoryReport, getBolaoPanel, getComparePanel, getElectionPane
 import { bolaoModal } from "../discord/commands/bolao.js";
 import { bolaoBoard } from "#services";
 import { CONFIG } from "#config";
-import { getGuildSettings, publishElectionPanel, updateGuildSettings, type ChannelKey } from "#database";
+import { getGuildSettings, updateGuildSettings, type ChannelKey } from "#database";
+import { publishElectionPanel } from "#services";
 import { menus } from "#menus";
 
 export async function handleInteraction(interaction: Interaction) {
